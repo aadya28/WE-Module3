@@ -1,0 +1,4 @@
+Repository Link: https://github.com/aadya28/WE-Module3.git
+Colab Link: https://colab.research.google.com/drive/1mtA4xoqYvdzOZlseBRHVbdaZaNnOo7y4?usp=sharing
+ChatGPT Transcript 1: https://chat.openai.com/share/3f271078-3075-4484-baeb-75cce99d5f45
+ChatGPT Transcript 2: https://chat.openai.com/share/2803b4a5-beb3-459f-9f05-1fd8bb7d7562
