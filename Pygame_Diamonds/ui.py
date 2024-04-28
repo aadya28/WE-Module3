@@ -1,4 +1,5 @@
 import pygame
+import cards
 
 def get_screen_size():
     # Initialize Pygame
@@ -9,6 +10,9 @@ def get_screen_size():
 
     # Return screen width and height
     return screen_info.current_w, screen_info.current_h
+
+def update_screen():
+    pygame.display.flip()
 
 def create_player_window(screen):
     # Set up fonts
@@ -76,6 +80,54 @@ def create_player_window(screen):
         screen.blit(font.render(player1_input, True, white), (player1_input_rect.x + 5, player1_input_rect.y + 5))
         screen.blit(font.render(player2_input, True, white), (player2_input_rect.x + 5, player2_input_rect.y + 5))
 
-        pygame.display.flip()
+        update_screen()
 
     return player1_input, player2_input
+
+def blur_background(screen):
+    green = (0, 153, 76)
+    # Clear the screen with a blurred green background
+    blurred_background = pygame.Surface(screen.get_size())
+    blurred_background.fill(green)
+    blurred_background.set_alpha(200)  # Set transparency
+    screen.blit(blurred_background, (0, 0))
+
+def render_game_start(screen, player1_name, player2_name):
+    blur_background(screen)
+
+    screen_width, screen_height = get_screen_size()
+    # Set up fonts
+    font_large = pygame.font.Font(None, 72)
+    font_medium = pygame.font.Font(None, 36)
+
+    # Set up colors
+    white = (255, 255, 255)
+
+    text = font_large.render("Let the game begin!", True, white)
+    screen.blit(text, ((screen_width - text.get_width()) // 2, 100))
+    vs_text = font_medium.render(f"{player1_name} vs {player2_name}", True, white)
+    screen.blit(vs_text, ((screen.get_width() - vs_text.get_width()) // 2, 200))
+
+    update_screen()
+
+def render_game_round(screen, player1_name, player2_name, round_number, player1_score, player2_score, round_winner, round_points):
+    blur_background(screen)
+
+    screen_width, screen_height = get_screen_size()
+    # Set up fonts
+    font_large = pygame.font.Font(None, 72)
+    font_medium = pygame.font.Font(None, 36)
+
+    # Set up colors
+    white = (255, 255, 255)
+    green = (0, 153, 76)
+    black = (0, 0, 0)
+
+    round_text = font_large.render(f"Round {round_number}", True, white)
+    screen.blit(round_text, ((screen.get_width() - round_text.get_width()) // 2, 100))
+    score_text = font_medium.render(f"{player1_name}: {player1_score}   {player2_name}: {player2_score}", True, white)
+    screen.blit(score_text, ((screen.get_width() - score_text.get_width()) // 2, 200))
+    round_result_text = font_medium.render(f"{round_winner} won {round_points} points!", True, white)
+    screen.blit(round_result_text, ((screen.get_width() - round_result_text.get_width()) // 2, 300))
+
+    update_screen()
