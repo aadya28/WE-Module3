@@ -11,7 +11,8 @@ def get_screen_size():
     # Return screen width and height
     return screen_info.current_w, screen_info.current_h
 
-screen_width, screen_height = get_screen_size() # change into global variable
+system_screen_w, system_screen_h = get_screen_size()
+screen_width, screen_height = system_screen_w * 0.8, system_screen_h * 0.8
 
 def update_screen():
     pygame.display.flip()
@@ -33,9 +34,6 @@ def create_main_menu_window(screen):
 
     # Set up colors
     white = (255, 255, 255)
-
-    # Get screen dimensions
-    screen_width, screen_height = get_screen_size()
 
     # Calculate positions for text and input fields
     text_x = screen_width * 0.27
@@ -104,7 +102,6 @@ def blur_background(screen):
 
 
 def render_game_start(screen, player1_name, player2_name):
-    screen_width, screen_height = get_screen_size()
     # Set up fonts
     font_large = pygame.font.Font(None, 65)
     font_medium = pygame.font.Font(None, 50)
@@ -120,27 +117,34 @@ def render_game_start(screen, player1_name, player2_name):
     update_screen()
 
 
-def render_game_round(screen, player1_name, player2_name, round_number, player1_score,
-                      player2_score, round_winner, round_points):
+
+def render_round_info(screen, round_number, player1_name, p1_curr_round_points, player2_name,
+                      p2_curr_round_points, round_winner):
     blur_background(screen)
 
-    screen_width, screen_height = get_screen_size()
     # Set up fonts
     font_large = pygame.font.Font(None, 72)
-    font_medium = pygame.font.Font(None, 36)
+    font_medium = pygame.font.Font(None, 50)
 
     # Set up colors
     white = (255, 255, 255)
 
     round_text = font_large.render(f"Round {round_number}", True, white)
     screen.blit(round_text, ((screen_width - round_text.get_width()) // 2, 100))
-    score_text = font_medium.render(f"{player1_name}: {player1_score}   {player2_name}: {player2_score}", True, white)
-    screen.blit(score_text, ((screen_width - score_text.get_width()) // 2, 200))
-    round_result_text = font_medium.render(f"{round_winner} won {round_points} points!", True, white)
-    screen.blit(round_result_text, ((screen_width - round_result_text.get_width()) // 2, 300))
+
+    if round_winner == "Tie":
+        round_result_text = font_medium.render("It's a tie!", True, white)
+    else:
+        round_result_text = font_medium.render(f"{round_winner} won the round!", True, white)
+    screen.blit(round_result_text, ((screen_width - round_result_text.get_width()) // 2, 200))
+
+    # Display individual scores for the round
+    player1_round_score_text = font_medium.render(f"{player1_name}: {p1_curr_round_points} points", True, white)
+    player2_round_score_text = font_medium.render(f"{player2_name}: {p2_curr_round_points} points", True, white)
+    screen.blit(player1_round_score_text, ((screen_width - player1_round_score_text.get_width()) // 2, 300))
+    screen.blit(player2_round_score_text, ((screen_width - player2_round_score_text.get_width()) // 2, 350))
 
     update_screen()
-
 
 def render_draw_pile(screen, drawn_card_name):
     # Set up fonts
@@ -150,15 +154,15 @@ def render_draw_pile(screen, drawn_card_name):
     white = (255, 255, 255)
 
     # Calculate positions for draw pile and drawn card text
-    draw_pile_x = 50
-    draw_pile_y = 60
-    drawn_card_text_x = screen_width * 0.3
-    drawn_card_text_y = 15
+    draw_pile_x = screen_width * 0.05
+    draw_pile_y = screen_height * 0.15
 
     split_card_name = drawn_card_name.split(" ")
 
     # Render drawn card text
     drawn_card_text = font.render(f"{drawn_card_name} is drawn", True, white)
+    drawn_card_text_x = (screen_width - drawn_card_text.get_width()) // 2
+    drawn_card_text_y = screen_height * 0.05
     screen.blit(drawn_card_text, (drawn_card_text_x, drawn_card_text_y))
 
     # Load and render the image of the drawn card
@@ -166,4 +170,25 @@ def render_draw_pile(screen, drawn_card_name):
     screen.blit(card_image, (draw_pile_x, draw_pile_y))
 
     # Update the display
+    update_screen()
+
+def render_scorecard(screen, player1_name, player2_name, player1_score, player2_score):
+    # Set up colors
+    white = (255, 255, 255)
+
+    font = pygame.font.Font(None, 40)
+
+    # Render player names and scores
+    player1_text = font.render(f"{player1_name}: {player1_score}", True, white)
+    player2_text = font.render(f"{player2_name}: {player2_score}", True, white)
+
+    # Position the texts
+    text_x = screen_width * 0.8
+    player1_y =  screen_height * 0.2
+    player2_y = player1_y + font.size(player1_name)[1] + 10
+
+    # Blit the texts onto the screen
+    screen.blit(player1_text, (text_x, player1_y))
+    screen.blit(player2_text, (text_x, player2_y))
+
     update_screen()
