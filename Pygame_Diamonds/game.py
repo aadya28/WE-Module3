@@ -20,10 +20,13 @@ pygame.display.set_caption("Diamonds Game")
 # Initialize the clock
 clock = pygame.time.Clock()
 
+
 def main():
     current_scene = MAIN_MENU  # Start with the main menu scene
     player1_name = "Computer"
     player2_name = "Computer"
+    player1_score = 0
+    player2_score = 0
 
     running = True
     while running:
@@ -40,11 +43,11 @@ def main():
             current_scene = GAMEPLAY
         if current_scene == GAMEPLAY:
             window.fill(GREEN)
-            handle_gameplay(player1_name, player2_name)
+            player1_score, player2_score = handle_gameplay(player1_name, player1_score, player2_name, player2_score)
             current_scene = GAME_OVER
         if current_scene == GAME_OVER:
             window.fill(GREEN)
-            handle_game_over()
+            handle_game_over(player1_name, player1_score, player2_name, player2_score)
             running = False
 
         pygame.display.flip()
@@ -52,16 +55,13 @@ def main():
 
 
 def handle_main_menu():
-    player1_name, player2_name = "a", "b"
-        # ui.create_main_menu_window(screen_w, screen_h))
+    player1_name, player2_name = ui.create_main_menu_window(window)
     print("Player 1:", player1_name)
     print("Player 2:", player2_name)
     return player1_name, player2_name
 
 
-def handle_gameplay(player1_name, player2_name):
-    player1_score = 0
-    player2_score = 0
+def handle_gameplay(player1_name, player1_score, player2_name, player2_score):
     ui.render_game_start(window, player1_name, player2_name)
 
     # game starts
@@ -71,6 +71,8 @@ def handle_gameplay(player1_name, player2_name):
     diamonds.shuffle_deck(draw_pile)
     spades = cards.Suit("Spades")
     player_hand = spades.create_suit()
+    hearts = cards.Suit("Hearts")
+    computer_hand = hearts.create_suit()
 
     while round_number < 14:
         window.fill(GREEN)
@@ -84,9 +86,9 @@ def handle_gameplay(player1_name, player2_name):
 
         # Player and computer make their bids
         player1_bid = ui.handle_player_input(player_hand, card_positions)
-        print(player1_bid)
-            # cards.Card("Spades", "10", "10"))  # Placeholder, replace with actual player bid
-        player2_bid = cards.Card("Hearts", "J", "11")  # Placeholder, replace with actual computer bid
+        print(player1_name, ":", player1_bid)
+        player2_bid = strategies.choose_computer_bid(computer_hand, player_hand, drawn_card)
+        print(player2_name, ":", player2_bid)
 
         # Calculate points and determine the winner of the round
         p1_curr_round_points, p2_curr_round_points, winner = strategies.calculate_points(
@@ -96,12 +98,15 @@ def handle_gameplay(player1_name, player2_name):
         player1_score += p1_curr_round_points
         player2_score += p2_curr_round_points
 
-        ui.render_round_info(window, round_number, player1_name, p1_curr_round_points, player2_name, p2_curr_round_points, winner)
+        ui.render_round_info(window, round_number, player1_name, player1_bid, p1_curr_round_points, player2_name,
+                             player2_bid, p2_curr_round_points, winner)
         round_number += 1
 
+    return player1_score, player2_score
 
-def handle_game_over():
-    print("game over")
+
+def handle_game_over(player1_name, player1_score, player2_name, player2_score):
+    ui.render_game_over(window, player1_name, player1_score, player2_name, player2_score)
 
 
 if __name__ == "__main__":
