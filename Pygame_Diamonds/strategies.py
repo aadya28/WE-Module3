@@ -1,30 +1,6 @@
 import random
+
 import cards
-
-
-# Function to calculate points and determine the winner of the round
-def calculate_points(player1, player1_bid, player2, player2_bid, round_points):
-    winner = "Tie"
-    player1_value = int(player1_bid.value)
-    player2_value = int(player2_bid.value)
-
-    auction_value = int(round_points)
-    if player1_value > player2_value:
-        print("Player 1 wins the round!")
-        winner = player1
-        player1_points = auction_value
-        player2_points = 0
-    elif player2_value > player1_value:
-        print("Player 2 wins the round!")
-        winner = player2
-        player1_points = 0
-        player2_points = auction_value
-    else:
-        print("It's a tie! Both players share the points.")
-        player1_points = auction_value // 2
-        player2_points = auction_value // 2
-
-    return player1_points, player2_points, winner
 
 
 def choose_computer_bid(computer_hand, player_hand, drawn_card):
@@ -51,6 +27,7 @@ def same_rank_bidding(computer_hand, drawn_card):
             return card
 
     return None
+
 
 def strategy2(computer_hand, player_hand, drawn_card):
     """
@@ -94,3 +71,28 @@ def strategy2(computer_hand, player_hand, drawn_card):
 
     print("Computer bids:", bid_card)
     return bid_card
+
+
+# Function to calculate points and determine the winner of the round
+def calculate_points(player1, player1_bid, player2, player2_bid, round_points):
+    winner = "Tie"
+    player1_value = int(player1_bid.value)
+    player2_value = int(player2_bid.value)
+
+    auction_value = int(round_points)
+    if player1_value > player2_value:
+        print("Player 1 wins the round!")
+        winner = player1
+        player1_points = auction_value
+        player2_points = 0
+    elif player2_value > player1_value:
+        print("Player 2 wins the round!")
+        winner = player2
+        player1_points = 0
+        player2_points = auction_value
+    else:
+        print("It's a tie! Both players share the points.")
+        player1_points = auction_value // 2
+        player2_points = auction_value // 2
+
+    return player1_points, player2_points, winner

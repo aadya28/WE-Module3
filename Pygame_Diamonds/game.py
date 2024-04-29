@@ -1,20 +1,18 @@
 import pygame
-import ui
+
 import cards
+import constants
 import strategies
+import ui
 
 # Define constants for scene identifiers
 MAIN_MENU = 0
 GAMEPLAY = 1
 GAME_OVER = 2
 
-GREEN = (0, 153, 76)
-
 # Initialize Pygame and set up the window
 pygame.init()
-system_screen_w, system_screen_h = ui.get_screen_size()
-screen_w, screen_h = system_screen_w * 0.8, system_screen_h * 0.8
-window = pygame.display.set_mode((screen_w, screen_h))
+window = pygame.display.set_mode((constants.SCREEN_W, constants.screen_h))
 pygame.display.set_caption("Diamonds Game")
 
 # Initialize the clock
@@ -38,15 +36,15 @@ def main():
                     running = False
 
         if current_scene == MAIN_MENU:
-            window.fill(GREEN)
+            window.fill(constants.GREEN)
             player1_name, player2_name = handle_main_menu()
             current_scene = GAMEPLAY
         if current_scene == GAMEPLAY:
-            window.fill(GREEN)
+            window.fill(constants.GREEN)
             player1_score, player2_score = handle_gameplay(player1_name, player1_score, player2_name, player2_score)
             current_scene = GAME_OVER
         if current_scene == GAME_OVER:
-            window.fill(GREEN)
+            window.fill(constants.GREEN)
             handle_game_over(player1_name, player1_score, player2_name, player2_score)
             running = False
 
@@ -75,7 +73,7 @@ def handle_gameplay(player1_name, player1_score, player2_name, player2_score):
     computer_hand = hearts.create_suit()
 
     while round_number < 14:
-        window.fill(GREEN)
+        window.fill(constants.GREEN)
 
         drawn_card = draw_pile.pop()
         drawn_card_name = str(drawn_card)

@@ -1,20 +1,13 @@
-import pygame
 import os
+import pygame
+
+import constants
 
 
 def get_screen_size():
-    # Initialize Pygame
     pygame.init()
-
-    # Get display information
     screen_info = pygame.display.Info()
-
-    # Return screen width and height
     return screen_info.current_w, screen_info.current_h
-
-
-system_screen_w, system_screen_h = get_screen_size()
-screen_width, screen_height = system_screen_w * 0.8, system_screen_h * 0.8
 
 
 def update_screen():
@@ -35,23 +28,17 @@ def transition_window():
 
 
 def create_main_menu_window(screen):
-    # Set up fonts
-    font = pygame.font.Font(None, 36)
-
-    # Set up colors
-    white = (255, 255, 255)
-
     # Calculate positions for text and input fields
-    text_x = screen_width * 0.27
-    text_y = screen_height * 0.25
-    input_box_x = screen_width * 0.4
-    input_box_y = screen_height * 0.4
-    input_width = screen_width * 0.3
+    text_x = constants.SCREEN_W * 0.22
+    text_y = constants.screen_h * 0.3
+    input_box_x = constants.SCREEN_W * 0.4
+    input_box_y = constants.screen_h * 0.4
+    input_width = constants.SCREEN_W * 0.3
 
     # Set up text surfaces
-    greeting_text = font.render("Welcome to Diamonds! Please enter players!", True, (245, 206, 11))
-    player1_text = font.render("Player 1:", True, white)
-    player2_text = font.render("Player 2:", True, white)
+    greeting_text = constants.FONT_MEDIUM.render("Welcome to Diamonds! Please enter players!", True, constants.GOLDEN)
+    player1_text = constants.FONT_SMALL.render("Player 1:", True, constants.WHITE)
+    player2_text = constants.FONT_SMALL.render("Player 2:", True, constants.WHITE)
 
     # Create input fields
     player1_input_rect = pygame.Rect(input_box_x, input_box_y, input_width, 50)
@@ -86,12 +73,14 @@ def create_main_menu_window(screen):
         screen.blit(player2_text, (input_box_x - player2_text.get_width() - 50, input_box_y + 110))
 
         # Draw input fields
-        pygame.draw.rect(screen, white, player1_input_rect, 2)
-        pygame.draw.rect(screen, white, player2_input_rect, 2)
+        pygame.draw.rect(screen, constants.WHITE, player1_input_rect, 2)
+        pygame.draw.rect(screen, constants.WHITE, player2_input_rect, 2)
 
         # Displaying the input text entered by the players onto the screen within their respective input fields.
-        screen.blit(font.render(player1_input, True, white), (player1_input_rect.x + 5, player1_input_rect.y + 5))
-        screen.blit(font.render(player2_input, True, white), (player2_input_rect.x + 5, player2_input_rect.y + 5))
+        screen.blit(constants.FONT_SMALL.render(player1_input, True, constants.WHITE),
+                    (player1_input_rect.x + 5, player1_input_rect.y + 5))
+        screen.blit(constants.FONT_SMALL.render(player2_input, True, constants.WHITE),
+                    (player2_input_rect.x + 5, player2_input_rect.y + 5))
 
         pygame.display.flip()
 
@@ -99,84 +88,34 @@ def create_main_menu_window(screen):
 
 
 def blur_background(screen):
-    green = (0, 153, 76)
     # Clear the screen with a blurred green background
     blurred_background = pygame.Surface(screen.get_size())
-    blurred_background.fill(green)
+    blurred_background.fill(constants.GREEN)
     blurred_background.set_alpha(200)  # Set transparency
     screen.blit(blurred_background, (0, 0))
 
 
 def render_game_start(screen, player1_name, player2_name):
-    # Set up fonts
-    font_large = pygame.font.Font(None, 65)
-    font_medium = pygame.font.Font(None, 50)
-
-    # Set up colors
-    white = (255, 255, 255)
-
-    text = font_large.render("Let the game begin!", True, white)
-    screen.blit(text, ((screen_width - text.get_width()) // 2, 100))
-    vs_text = font_medium.render(f"{player1_name} vs {player2_name}", True, white)
-    screen.blit(vs_text, ((screen_width - vs_text.get_width()) // 2, 200))
-
-    update_screen()
-    transition_window()
-
-
-def render_round_info(screen, round_number, player1_name, player1_bid, p1_curr_round_points,
-                      player2_name, player2_bid, p2_curr_round_points, round_winner):
-    blur_background(screen)
-
-    # Set up fonts
-    font_large = pygame.font.Font(None, 65)
-    font_medium = pygame.font.Font(None, 50)
-
-    # Set up colors
-    white = (255, 255, 255)
-
-    round_text = font_large.render(f"Round {round_number}. Bids Revealed!", True, white)
-    screen.blit(round_text, ((screen_width - round_text.get_width()) // 2, 100))
-
-    if round_winner == "Tie":
-        round_result_text = font_medium.render("It's a tie!", True, white)
-    else:
-        round_result_text = font_medium.render(f"{round_winner} won the round!", True, white)
-    screen.blit(round_result_text, ((screen_width - round_result_text.get_width()) // 2, 200))
-
-    # Display bids
-    player1_bid_text = font_medium.render(f"{player1_name}'s bid: {player1_bid}", True, white)
-    player2_bid_text = font_medium.render(f"{player2_name}'s bid: {player2_bid}", True, white)
-    screen.blit(player1_bid_text, ((screen_width - player1_bid_text.get_width()) // 2, 400))
-    screen.blit(player2_bid_text, ((screen_width - player2_bid_text.get_width()) // 2, 450))
-
-    # Display individual scores for the round
-    player1_round_score_text = font_medium.render(f"{player1_name}: {p1_curr_round_points} points", True, white)
-    player2_round_score_text = font_medium.render(f"{player2_name}: {p2_curr_round_points} points", True, white)
-    screen.blit(player1_round_score_text, ((screen_width - player1_round_score_text.get_width()) // 2, 300))
-    screen.blit(player2_round_score_text, ((screen_width - player2_round_score_text.get_width()) // 2, 350))
+    text = constants.FONT_LARGE.render("Let the game begin!", True, constants.GOLDEN)
+    screen.blit(text, ((constants.SCREEN_W - text.get_width()) // 2, 100))
+    vs_text = constants.FONT_MEDIUM.render(f"{player1_name} vs {player2_name}", True, constants.WHITE)
+    screen.blit(vs_text, ((constants.SCREEN_W - vs_text.get_width()) // 2, 200))
 
     update_screen()
     transition_window()
 
 
 def render_draw_pile(screen, drawn_card_name):
-    # Set up fonts
-    font = pygame.font.Font(None, 40)
-
-    # Set up colors
-    white = (255, 255, 255)
-
     # Calculate positions for draw pile and drawn card text
-    draw_pile_x = screen_width * 0.1
-    draw_pile_y = screen_height * 0.15
+    draw_pile_x = constants.SCREEN_W * 0.1
+    draw_pile_y = constants.screen_h * 0.15
 
     split_card_name = drawn_card_name.split(" ")
 
     # Render drawn card text
-    drawn_card_text = font.render(f"{drawn_card_name} is drawn", True, white)
-    drawn_card_text_x = (screen_width - drawn_card_text.get_width()) // 2
-    drawn_card_text_y = screen_height * 0.05
+    drawn_card_text = constants.FONT_MEDIUM.render(f"{drawn_card_name} is drawn", True, constants.WHITE)
+    drawn_card_text_x = (constants.SCREEN_W - drawn_card_text.get_width()) // 2
+    drawn_card_text_y = constants.screen_h * 0.05
     screen.blit(drawn_card_text, (drawn_card_text_x, drawn_card_text_y))
 
     # Load and render the image of the drawn card
@@ -184,7 +123,7 @@ def render_draw_pile(screen, drawn_card_name):
         os.path.join("images/diamonds", f"{split_card_name[0]}_of_{split_card_name[2].lower()}.png"))
     transformed_card_image = pygame.transform.scale(card_image, (120, 170))
     card_rect = pygame.Rect(draw_pile_x, draw_pile_y, 124, 174)
-    pygame.draw.rect(screen, (0, 0, 0), card_rect, 3)
+    pygame.draw.rect(screen, constants.GREY, card_rect, 3)
     # Draw the actual card image inside the border
     screen.blit(transformed_card_image, (draw_pile_x + 2, draw_pile_y + 2))
 
@@ -193,19 +132,14 @@ def render_draw_pile(screen, drawn_card_name):
 
 
 def render_scorecard(screen, player1_name, player2_name, player1_score, player2_score):
-    # Set up colors
-    white = (255, 255, 255)
-
-    font = pygame.font.Font(None, 40)
-
     # Render player names and scores
-    player1_text = font.render(f"{player1_name}: {player1_score}", True, white)
-    player2_text = font.render(f"{player2_name}: {player2_score}", True, white)
+    player1_text = constants.FONT_SMALL.render(f"{player1_name}: {player1_score}", True, constants.WHITE)
+    player2_text = constants.FONT_SMALL.render(f"{player2_name}: {player2_score}", True, constants.WHITE)
 
     # Position the texts
-    text_x = screen_width * 0.8
-    player1_y = screen_height * 0.2
-    player2_y = player1_y + font.size(player1_name)[1] + 10
+    text_x = constants.SCREEN_W * 0.8
+    player1_y = constants.screen_h * 0.2
+    player2_y = player1_y + constants.FONT_SMALL.size(player1_name)[1] + 10
 
     # Blit the texts onto the screen
     screen.blit(player1_text, (text_x, player1_y))
@@ -216,8 +150,8 @@ def render_scorecard(screen, player1_name, player2_name, player1_score, player2_
 
 def render_player_hand(screen, player_hand):
     # Set up initial position for the first card
-    card_x = screen_width * 0.075
-    card_y = screen_height * 0.65
+    card_x = constants.SCREEN_W * 0.075
+    card_y = constants.screen_h * 0.65
 
     # Load card images
     card_images = {}
@@ -233,7 +167,7 @@ def render_player_hand(screen, player_hand):
 
         # Draw black border around the card
         card_rect = pygame.Rect(card_x, card_y, 114, 164)
-        pygame.draw.rect(screen, (0, 0, 0), card_rect, 3)
+        pygame.draw.rect(screen, constants.GREY, card_rect, 3)
         # Draw the actual card image inside the border
         screen.blit(card_images[card], (card_x + 2, card_y + 2))  # Adjust position to fit the border
         card_x += 70
@@ -266,15 +200,39 @@ def handle_player_input(player_hand, card_positions):
     return selected_card
 
 
-def render_game_over(screen, player1_name, player1_score, player2_name, player2_score):
+def render_round_info(screen, round_number, player1_name, player1_bid, p1_curr_round_points,
+                      player2_name, player2_bid, p2_curr_round_points, round_winner):
     blur_background(screen)
 
-    # Set up fonts
-    font_large = pygame.font.Font(None, 65)
-    font_medium = pygame.font.Font(None, 50)
+    round_text = constants.FONT_LARGE.render(f"Round {round_number}. Bids Revealed!", True, constants.GOLDEN)
+    screen.blit(round_text, ((constants.SCREEN_W - round_text.get_width()) // 2, 100))
 
-    # Set up colors
-    white = (255, 255, 255)
+    if round_winner == "Tie":
+        round_result_text = constants.FONT_MEDIUM.render("It's a tie!", True, constants.WHITE)
+    else:
+        round_result_text = constants.FONT_MEDIUM.render(f"{round_winner} won the round!", True, constants.WHITE)
+    screen.blit(round_result_text, ((constants.SCREEN_W - round_result_text.get_width()) // 2, 200))
+
+    # Display bids
+    player1_bid_text = constants.FONT_MEDIUM.render(f"{player1_name}'s bid: {player1_bid}", True, constants.WHITE)
+    player2_bid_text = constants.FONT_MEDIUM.render(f"{player2_name}'s bid: {player2_bid}", True, constants.WHITE)
+    screen.blit(player1_bid_text, ((constants.SCREEN_W - player1_bid_text.get_width()) // 2, 400))
+    screen.blit(player2_bid_text, ((constants.SCREEN_W - player2_bid_text.get_width()) // 2, 450))
+
+    # Display individual scores for the round
+    player1_round_score_text = constants.FONT_MEDIUM.render(f"{player1_name}: {p1_curr_round_points} points", True,
+                                                            constants.WHITE)
+    player2_round_score_text = constants.FONT_MEDIUM.render(f"{player2_name}: {p2_curr_round_points} points", True,
+                                                            constants.WHITE)
+    screen.blit(player1_round_score_text, ((constants.SCREEN_W - player1_round_score_text.get_width()) // 2, 300))
+    screen.blit(player2_round_score_text, ((constants.SCREEN_W - player2_round_score_text.get_width()) // 2, 350))
+
+    update_screen()
+    transition_window()
+
+
+def render_game_over(screen, player1_name, player1_score, player2_name, player2_score):
+    blur_background(screen)
 
     # Determine the winner of the game
     if player1_score > player2_score:
@@ -285,13 +243,13 @@ def render_game_over(screen, player1_name, player1_score, player2_name, player2_
         winner_text = "It's a tie!"
 
     # Display winner and final scores
-    winner_text_surface = font_large.render(winner_text, True, white)
-    screen.blit(winner_text_surface, ((screen_width - winner_text_surface.get_width()) // 2, 100))
+    winner_text_surface = constants.FONT_LARGE.render(winner_text, True, constants.GOLDEN)
+    screen.blit(winner_text_surface, ((constants.SCREEN_W - winner_text_surface.get_width()) // 2, 100))
 
-    player1_score_text = font_medium.render(f"{player1_name}: {player1_score} points", True, white)
-    player2_score_text = font_medium.render(f"{player2_name}: {player2_score} points", True, white)
-    screen.blit(player1_score_text, ((screen_width - player1_score_text.get_width()) // 2, 250))
-    screen.blit(player2_score_text, ((screen_width - player2_score_text.get_width()) // 2, 300))
+    player1_score_text = constants.FONT_MEDIUM.render(f"{player1_name}: {player1_score} points", True, constants.WHITE)
+    player2_score_text = constants.FONT_MEDIUM.render(f"{player2_name}: {player2_score} points", True, constants.WHITE)
+    screen.blit(player1_score_text, ((constants.SCREEN_W - player1_score_text.get_width()) // 2, 250))
+    screen.blit(player2_score_text, ((constants.SCREEN_W - player2_score_text.get_width()) // 2, 300))
 
     update_screen()
     transition_window()
