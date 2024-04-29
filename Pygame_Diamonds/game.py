@@ -66,9 +66,11 @@ def handle_gameplay(player1_name, player2_name):
 
     # game starts
     round_number = 1
-    diamonds = cards.Suit("diamonds")
+    diamonds = cards.Suit("Diamonds")
     draw_pile = diamonds.create_suit()
     diamonds.shuffle_deck(draw_pile)
+    spades = cards.Suit("Spades")
+    player_hand = spades.create_suit()
 
     while round_number < 14:
         window.fill(GREEN)
@@ -78,9 +80,12 @@ def handle_gameplay(player1_name, player2_name):
         round_points = drawn_card.value
         ui.render_draw_pile(window, drawn_card_name)
         ui.render_scorecard(window, player1_name, player2_name, player1_score, player2_score)
+        card_positions = ui.render_player_hand(window, player_hand)
 
         # Player and computer make their bids
-        player1_bid = cards.Card("Spades", "10", "10")  # Placeholder, replace with actual player bid
+        player1_bid = ui.handle_player_input(player_hand, card_positions)
+        print(player1_bid)
+            # cards.Card("Spades", "10", "10"))  # Placeholder, replace with actual player bid
         player2_bid = cards.Card("Hearts", "J", "11")  # Placeholder, replace with actual computer bid
 
         # Calculate points and determine the winner of the round

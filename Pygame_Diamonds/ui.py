@@ -16,6 +16,8 @@ screen_width, screen_height = system_screen_w * 0.8, system_screen_h * 0.8
 
 def update_screen():
     pygame.display.flip()
+
+def round_transition():
     waiting_for_return = True
     while waiting_for_return:
         for event in pygame.event.get():
@@ -87,7 +89,7 @@ def create_main_menu_window(screen):
         screen.blit(font.render(player1_input, True, white), (player1_input_rect.x + 5, player1_input_rect.y + 5))
         screen.blit(font.render(player2_input, True, white), (player2_input_rect.x + 5, player2_input_rect.y + 5))
 
-        pygame.display.flip()
+        update_screen()
 
     return player1_input, player2_input
 
@@ -115,7 +117,7 @@ def render_game_start(screen, player1_name, player2_name):
     screen.blit(vs_text, ((screen_width - vs_text.get_width()) // 2, 200))
 
     update_screen()
-
+    round_transition()
 
 
 def render_round_info(screen, round_number, player1_name, p1_curr_round_points, player2_name,
@@ -123,7 +125,7 @@ def render_round_info(screen, round_number, player1_name, p1_curr_round_points, 
     blur_background(screen)
 
     # Set up fonts
-    font_large = pygame.font.Font(None, 72)
+    font_large = pygame.font.Font(None, 65)
     font_medium = pygame.font.Font(None, 50)
 
     # Set up colors
@@ -145,6 +147,7 @@ def render_round_info(screen, round_number, player1_name, p1_curr_round_points, 
     screen.blit(player2_round_score_text, ((screen_width - player2_round_score_text.get_width()) // 2, 350))
 
     update_screen()
+    round_transition()
 
 def render_draw_pile(screen, drawn_card_name):
     # Set up fonts
@@ -166,8 +169,12 @@ def render_draw_pile(screen, drawn_card_name):
     screen.blit(drawn_card_text, (drawn_card_text_x, drawn_card_text_y))
 
     # Load and render the image of the drawn card
-    card_image = pygame.image.load(os.path.join("images/diamonds", f"{split_card_name[0]}_of_diamonds.png"))
-    screen.blit(card_image, (draw_pile_x, draw_pile_y))
+    card_image = pygame.image.load(os.path.join("images/diamonds", f"{split_card_name[0]}_of_{split_card_name[2].lower()}.png"))
+    transformed_card_image = pygame.transform.scale(card_image, (120, 170))
+    card_rect = pygame.Rect(draw_pile_x, draw_pile_y, 124, 174)
+    pygame.draw.rect(screen, (0, 0, 0), card_rect, 3)
+    # Draw the actual card image inside the border
+    screen.blit(transformed_card_image, (draw_pile_x + 2, draw_pile_y + 2))
 
     # Update the display
     update_screen()
@@ -192,3 +199,53 @@ def render_scorecard(screen, player1_name, player2_name, player1_score, player2_
     screen.blit(player2_text, (text_x, player2_y))
 
     update_screen()
+
+def render_player_hand(screen, player_hand):
+    # Set up initial position for the first card
+    card_x = screen_width * 0.05
+    card_y = screen_height * 0.65
+
+    # Load card images
+    card_images = {}
+    card_positions = []  # List to store the position of each card
+
+    for card in player_hand:
+        card_name = f"{card.rank}_of_{card.suit.lower()}.png"
+        card_image = pygame.image.load(os.path.join("images/spades", card_name))
+        card_images[card] = pygame.transform.scale(card_image, (110, 160))  # Adjust size if needed
+
+        # Store the position of the card
+        card_positions.append((card_x, card_y))
+
+        # Draw black border around the card
+        card_rect = pygame.Rect(card_x, card_y, 114, 164)
+        pygame.draw.rect(screen, (0, 0, 0), card_rect, 3)
+        # Draw the actual card image inside the border
+        screen.blit(card_images[card], (card_x + 2, card_y + 2))  # Adjust position to fit the border
+        card_x += 70
+
+    update_screen()
+    return card_positions
+
+def handle_player_input(player_hand, card_positions):
+    # Loop for handling player input
+    selecting_card = True
+    selected_card = None
+    while selecting_card:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                # Check if the mouse click is within the bounding box of any card
+                for index, position in enumerate(card_positions):
+                    card_x, card_y = position
+                    card_rect = pygame.Rect(card_x, card_y, 70, 164)
+                    if card_rect.collidepoint(mouse_x, mouse_y):
+                        selected_card = player_hand[index]  # Get the corresponding card from the player_hand
+                        selecting_card = False
+                        break
+    player_hand.remove(selected_card)
+    update_screen()
+    return selected_card
