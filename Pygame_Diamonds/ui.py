@@ -28,19 +28,19 @@ def transition_window():
 
 
 def create_main_menu_window(screen):
-    # Calculate positions for text and input fields
+    # Calculating positions for text and input fields
     text_x = constants.SCREEN_W * 0.22
-    text_y = constants.screen_h * 0.3
+    text_y = constants.SCREEN_H * 0.3
     input_box_x = constants.SCREEN_W * 0.4
-    input_box_y = constants.screen_h * 0.4
+    input_box_y = constants.SCREEN_H * 0.4
     input_width = constants.SCREEN_W * 0.3
 
-    # Set up text surfaces
+    # Setting up text surfaces
     greeting_text = constants.FONT_MEDIUM.render("Welcome to Diamonds! Please enter players!", True, constants.GOLDEN)
     player1_text = constants.FONT_SMALL.render("Player 1:", True, constants.WHITE)
     player2_text = constants.FONT_SMALL.render("Player 2:", True, constants.WHITE)
 
-    # Create input fields
+    # Creating input fields
     player1_input_rect = pygame.Rect(input_box_x, input_box_y, input_width, 50)
     player2_input_rect = pygame.Rect(input_box_x, input_box_y + 100, input_width, 50)
     player1_input = ""
@@ -108,21 +108,23 @@ def render_game_start(screen, player1_name, player2_name):
 def render_draw_pile(screen, drawn_card_name):
     # Calculate positions for draw pile and drawn card text
     draw_pile_x = constants.SCREEN_W * 0.1
-    draw_pile_y = constants.screen_h * 0.15
+    draw_pile_y = constants.SCREEN_H * 0.15
+    draw_pile_width = constants.SCREEN_W * 0.11
+    draw_pile_height = constants.SCREEN_H * 0.24
 
     split_card_name = drawn_card_name.split(" ")
 
     # Render drawn card text
     drawn_card_text = constants.FONT_MEDIUM.render(f"{drawn_card_name} is drawn", True, constants.WHITE)
     drawn_card_text_x = (constants.SCREEN_W - drawn_card_text.get_width()) // 2
-    drawn_card_text_y = constants.screen_h * 0.05
+    drawn_card_text_y = constants.SCREEN_H * 0.05
     screen.blit(drawn_card_text, (drawn_card_text_x, drawn_card_text_y))
 
     # Load and render the image of the drawn card
     card_image = pygame.image.load(
         os.path.join("images/diamonds", f"{split_card_name[0]}_of_{split_card_name[2].lower()}.png"))
-    transformed_card_image = pygame.transform.scale(card_image, (120, 170))
-    card_rect = pygame.Rect(draw_pile_x, draw_pile_y, 124, 174)
+    transformed_card_image = pygame.transform.scale(card_image, (draw_pile_width, draw_pile_height))
+    card_rect = pygame.Rect(draw_pile_x, draw_pile_y, draw_pile_width + 4, draw_pile_height + 4)
     pygame.draw.rect(screen, constants.GREY, card_rect, 3)
     # Draw the actual card image inside the border
     screen.blit(transformed_card_image, (draw_pile_x + 2, draw_pile_y + 2))
@@ -138,7 +140,7 @@ def render_scorecard(screen, player1_name, player2_name, player1_score, player2_
 
     # Position the texts
     text_x = constants.SCREEN_W * 0.8
-    player1_y = constants.screen_h * 0.2
+    player1_y = constants.SCREEN_H * 0.2
     player2_y = player1_y + constants.FONT_SMALL.size(player1_name)[1] + 10
 
     # Blit the texts onto the screen
@@ -151,7 +153,9 @@ def render_scorecard(screen, player1_name, player2_name, player1_score, player2_
 def render_player_hand(screen, player_hand):
     # Set up initial position for the first card
     card_x = constants.SCREEN_W * 0.075
-    card_y = constants.screen_h * 0.65
+    card_y = constants.SCREEN_H * 0.65
+    card_width = constants.SCREEN_W * 0.11
+    card_height = constants.SCREEN_H * 0.24
 
     # Load card images
     card_images = {}
@@ -160,13 +164,13 @@ def render_player_hand(screen, player_hand):
     for card in player_hand:
         card_name = f"{card.rank}_of_{card.suit.lower()}.png"
         card_image = pygame.image.load(os.path.join("images/spades", card_name))
-        card_images[card] = pygame.transform.scale(card_image, (110, 160))  # Adjust size if needed
+        card_images[card] = pygame.transform.scale(card_image, (card_width, card_height))  # Adjust size if needed
 
         # Store the position of the card
         card_positions.append((card_x, card_y))
 
         # Draw black border around the card
-        card_rect = pygame.Rect(card_x, card_y, 114, 164)
+        card_rect = pygame.Rect(card_x, card_y, card_width + 4, card_height + 4)
         pygame.draw.rect(screen, constants.GREY, card_rect, 3)
         # Draw the actual card image inside the border
         screen.blit(card_images[card], (card_x + 2, card_y + 2))  # Adjust position to fit the border

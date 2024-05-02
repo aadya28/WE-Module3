@@ -5,22 +5,21 @@ import constants
 import strategies
 import ui
 
-# Define constants for scene identifiers
+# constants for scene identifiers
 MAIN_MENU = 0
 GAMEPLAY = 1
 GAME_OVER = 2
 
-# Initialize Pygame and set up the window
+# Pygame initialization and window set up
 pygame.init()
-window = pygame.display.set_mode((constants.SCREEN_W, constants.screen_h))
+window = pygame.display.set_mode((constants.SCREEN_W, constants.SCREEN_H))
 pygame.display.set_caption("Diamonds Game")
 
-# Initialize the clock
 clock = pygame.time.Clock()
 
 
 def main():
-    current_scene = MAIN_MENU  # Start with the main menu scene
+    current_scene = MAIN_MENU
     player1_name = "Computer"
     player2_name = "Computer"
     player1_score = 0
@@ -62,7 +61,6 @@ def handle_main_menu():
 def handle_gameplay(player1_name, player1_score, player2_name, player2_score):
     ui.render_game_start(window, player1_name, player2_name)
 
-    # game starts
     round_number = 1
     diamonds = cards.Suit("Diamonds")
     draw_pile = diamonds.create_suit()
@@ -88,7 +86,7 @@ def handle_gameplay(player1_name, player1_score, player2_name, player2_score):
         player2_bid = strategies.choose_computer_bid(computer_hand, player_hand, drawn_card)
         print(player2_name, ":", player2_bid)
 
-        # Calculate points and determine the winner of the round
+        # Calculating points and determine the winner of the round
         p1_curr_round_points, p2_curr_round_points, winner = strategies.calculate_points(
             player1_name, player1_bid, player2_name, player2_bid, round_points)
 
