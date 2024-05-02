@@ -1,94 +1,109 @@
-import random
 import pygame
-import os
 
-pygame.display.init()
+import cards
+import constants
+import strategies
+import ui
 
-# Get the size of the screen
-screen_info = pygame.display.Info()
-screen_width = screen_info.current_w
-screen_height = screen_info.current_h
+# constants for scene identifiers
+MAIN_MENU = 0
+GAMEPLAY = 1
+GAME_OVER = 2
 
-# Calculate the window size to leave space for the toolbar and buttons
-window_width = int(screen_width * 0.9)  # Adjust as needed
-window_height = int(screen_height * 0.9)  # Adjust as needed
-
-# Set the display mode to a window slightly smaller than the screen size
-win = pygame.display.set_mode((window_width, window_height))
-win.fill((0, 130, 0))
-
-# Sets the game name
+# Pygame initialization and window set up
+pygame.init()
+window = pygame.display.set_mode((constants.SCREEN_W, constants.SCREEN_H))
 pygame.display.set_caption("Diamonds Game")
 
-
-# Define the dimensions of the frame
-card_frame_width = 150
-card_frame_height = 200
-
-class Suit:
-    RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
-
-    def __init__(self, suit_name):
-        self.cards = self.create_suit_cards(suit_name)
-        self.suit_name = suit_name
-
-    def shuffle_suit(self):
-        random.shuffle(self.cards)
-
-    def draw_card(self):
-        return self.cards.pop()
-
-    def create_suit_cards(self, suit_name):
-        suit_cards = [Card(rank, index + 2, suit_name) for index, rank in enumerate(self.RANKS)]
-        return suit_cards
+clock = pygame.time.Clock()
 
 
-class Card:
-    def __init__(self, rank, bidding_value, suit):
-        self.rank = rank
-        self.bidding_value = bidding_value
-        self.suit = suit
+def main():
+    current_scene = MAIN_MENU
+    player1_name = "Computer"
+    player2_name = "Computer"
+    player1_score = 0
+    player2_score = 0
 
-def display_card_image(card_path, pos_left, pos_top):
-    card_image = pygame.image.load(card_path)
-    transformed_image = pygame.transform.scale(card_image, (card_frame_width, card_frame_height))
-    win.blit(transformed_image, (pos_left, pos_top))
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
 
-# Create a suit of cards
-diamonds = Suit("spades")
-diamonds.shuffle_suit()
+        if current_scene == MAIN_MENU:
+            window.fill(constants.GREEN)
+            player1_name, player2_name = handle_main_menu()
+            current_scene = GAMEPLAY
+        if current_scene == GAMEPLAY:
+            window.fill(constants.GREEN)
+            player1_score, player2_score = handle_gameplay(player1_name, player1_score, player2_name, player2_score)
+            current_scene = GAME_OVER
+        if current_scene == GAME_OVER:
+            window.fill(constants.GREEN)
+            handle_game_over(player1_name, player1_score, player2_name, player2_score)
+            running = False
 
-# Counter for rounds
-rounds = 0
+        pygame.display.flip()
+    pygame.quit()
 
-# Define the position and size of the draw pile: Rect(left, top, width, height) -> Rect
-draw_pile = pygame.Rect(100, 100, 150, 200)
 
-# Main game loop
-run = True
-while run:
-    pygame.time.delay(100)
+def handle_main_menu():
+    player1_name, player2_name = ui.create_main_menu_window(window)
+    print("Player 1:", player1_name)
+    print("Player 2:", player2_name)
+    return player1_name, player2_name
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-            run = False
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            # Check if the left mouse button is clicked within the draw pile area
-            if event.button == 1 and draw_pile.collidepoint(event.pos):
-                # Display one card from the draw pile
-                if rounds < 13 and len(diamonds.cards) > 0:
-                    card = diamonds.draw_card()
-                    print(f"Round {rounds + 1}: {card.rank} of {diamonds.suit_name}")
-                    card_path = os.path.join('images', card.suit.lower(), f"{card.rank}_of_{card.suit.lower()}.png")
-                    display_card_image(card_path, 350, 100)
-                    rounds += 1
-                else:
-                    run = False
 
-    # Draw the draw pile
-    pygame.draw.rect(win, (255, 255, 255), draw_pile)
-    card_path = os.path.join('images', "card_back.png")
-    display_card_image(card_path, 100, 100)
-    pygame.display.update()
+def handle_gameplay(player1_name, player1_score, player2_name, player2_score):
+    ui.render_game_start(window, player1_name, player2_name)
 
-pygame.display.quit()
+    round_number = 1
+    diamonds = cards.Suit("Diamonds")
+    draw_pile = diamonds.create_suit()
+    diamonds.shuffle_deck(draw_pile)
+    spades = cards.Suit("Spades")
+    player_hand = spades.create_suit()
+    hearts = cards.Suit("Hearts")
+    computer_hand = hearts.create_suit()
+
+    while round_number < 14:
+        window.fill(constants.GREEN)
+
+        drawn_card = draw_pile.pop()
+        drawn_card_name = str(drawn_card)
+        round_points = drawn_card.value
+        ui.render_draw_pile(window, drawn_card_name)
+        ui.render_scorecard(window, player1_name, player2_name, player1_score, player2_score)
+        card_positions = ui.render_player_hand(window, player_hand)
+
+        # Player and computer make their bids
+        player1_bid = ui.handle_player_input(player_hand, card_positions)
+        print(player1_name, ":", player1_bid)
+        player2_bid = strategies.choose_computer_bid(computer_hand, player_hand, drawn_card)
+        print(player2_name, ":", player2_bid)
+
+        # Calculating points and determine the winner of the round
+        p1_curr_round_points, p2_curr_round_points, winner = strategies.calculate_points(
+            player1_name, player1_bid, player2_name, player2_bid, round_points)
+
+        # Update scores
+        player1_score += p1_curr_round_points
+        player2_score += p2_curr_round_points
+
+        ui.render_round_info(window, round_number, player1_name, player1_bid, p1_curr_round_points, player2_name,
+                             player2_bid, p2_curr_round_points, winner)
+        round_number += 1
+
+    return player1_score, player2_score
+
+
+def handle_game_over(player1_name, player1_score, player2_name, player2_score):
+    ui.render_game_over(window, player1_name, player1_score, player2_name, player2_score)
+
+
+if __name__ == "__main__":
+    main()
